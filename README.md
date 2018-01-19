@@ -1,5 +1,7 @@
-# ChromePad - Chromium OS for ThinkPad #
-## https://anddevw.com/gdgsf-chromepad-chromium-for-thinkpad/ ##
+#ChromePad - Chromium OS for ThinkPad#
+## https://anddevw.com/gdgsf-chromepad-chromium-for-thinkpad/ ##<br>  
+
+## Questions/Comments/Additions/Suggestions https://github.com/andDevW/ChromePad/issues ##
 
 ### Trademarks
 
