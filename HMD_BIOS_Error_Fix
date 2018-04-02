@@ -1,0 +1,16 @@
+If you’re using a ‘new’ unconfigured motherboard and have errors 2200 or 2201 at boot, I have good news and bad news.
+
+BAD NEWS: This requires WINDOWS. It might work in Debian with DOSBox. Personally I found it easier to just set up a laptop with an old Vista DVD.
+
+GOOD NEWS: This fixes the problem and gets rid of the errors.
+
+1. Download the Hardware Maintenance Diskette here: https://download.lenovo.com/ibmdl/pub/pc/pccbbs/mobiles/i7tm38us.exe
+
+2. Inside WINDOWS install i7tm38us.exe and run it(in Vista run in XP mode as admin) with a sacrificial USB drive plugged in.
+
+3. Plug the USB drive into the X220 and walk through the steps depending on which errors you encountered.
+
+
+4. Reboot without the USB drive and check that it boots without errors.
+
+5. Generate a NEW UUID.
