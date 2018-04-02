@@ -1,0 +1,219 @@
+Step-by-Step Guide to Building Chromium OS on Debian
+
+Prerequisites
+
+An x86_64 64-bit Debian or Ubuntu system with at least 8GB of RAM
+An Internet connection (faster is better)
+A good amount of free disk space and time
+A 16GB USB drive 
+
+Start Here 
+
+https://www.chromium.org/chromium-os/developer-guide
+
+Install the needed packages
+
+$ sudo apt-get install git-core gitk git-gui curl lvm2 thin-provisioning-tools python-pkg-resources python-virtualenv
+
+Configure Git
+
+$ git config --global user.email "you@example.com"
+$ git config --global user.name "Your Name"
+
+Install depot_tools
+
+$ cd ~
+$ git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+
+Make sudo more permissive
+
+$ cd /tmp
+
+Copy and paste, or carefully type each of the following lines one at a time, hitting the Enter key after each.
+*If you copy/paste this in a big chunk it's not going to work at all. 
+
+$ cat > ./sudo_editor <<EOF
+#!/bin/sh
+echo Defaults \!tty_tickets > \$1          # Entering your password in one shell affects all shells 
+echo Defaults timestamp_timeout=180 >> \$1 # Minutes between re-requesting your password	
+EOF
+
+$ chmod +x ./sudo_editor 	
+$ sudo EDITOR=./sudo_editor visudo -f /etc/sudoers.d/relax_requirements
+
+Configure the Environmental Variables
+
+$ vi ~/.bashrc
+
+Add the following line at the very bottom of your .bashrc file:
+
+export PATH=$PATH:~/depot_tools
+
+Source .bashrc
+$ . ~/.bashrc
+
+Make a directory for Chromium OS
+
+$ mkdir -p ${HOME}/chromiumos
+$ cd ${HOME}/chromiumos
+
+$ repo init -u https://chromium.googlesource.com/chromiumos/manifest.git
+
+$ repo sync -j4
+If you get errors just run the command again until everything syncs up. 
+
+This takes a while, so now is a good time to get your Google API Keys sorted out.
+
+Add Google API Keys
+
+This needs to be completed prior to building the Chromium OS image.
+
+https://www.chromium.org/developers/how-tos/api-keys
+
+1. Subscribe to Chromium Dev’s Google Group https://www.chromium.org/developers/how-tos/api-keys (mandatory)			
+
+2. Navigate to https://console.cloud.google.com/ 
+
+3. At top left, between Google Cloud Platform and the search bar, select the menu with 3 dots. 
+In the pop-up menu  click on box with the + the in the top right corner. 
+Create a project.
+Click on the hamburger menu in the top left corner, then scroll down to APIs & Services in the new menu.  
+In the submenu select Credentials.
+Select Create credentials > API key
+
+4. In the API key created dialog copy your API key.
+
+5. Open a new terminal window and cd to your home directory 
+
+6. Make a file .googleapikeys, adding in your own keys as you get them: 
+google_api_key = "your_api_key"
+google_default_client_id = "your_client_id"
+google_default_client_secret = "your_client_secret"
+
+7. You should have the API key already. 
+Follow the rest of the steps as outlined here 
+https://www.chromium.org/developers/how-tos/api-keys to obtain your own client id and client secret. 
+
+8. Paste these credentials into the .googleapikeys file and save it.
+
+9. After completing this step the API keys will be automatically baked-in to all of your Chromium OS builds. 
+
+Create a chroot
+
+
+$ cd ~/chromiumos/chromium
+
+Enter the command to download and enter the chroot
+$ cros_sdk
+
+While inside the chroot you will see a special cros-chroot prompt 
+~/trunk/src/scripts $ 
+
+After the initial download cros_sdk enters the chroot.
+
+Select a board
+~/trunk/src/scripts $ export BOARD=amd64-generic
+
+Set the Chronos User Password
+
+Set the password that you will use to enter the command line in Chromium OS. 
+You need to repeat this step every time you build a new image.
+~/trunk/src/scripts $ ./set_shared_user_password.sh
+
+Build packages
+
+Build all of the packages for the board
+~/trunk/src/scripts $ ./build_packages --board=${BOARD}
+
+If you get errors just run the command again until it completes.
+
+Build a disk image 
+
+Build the developer image with the additional developer packages built-in
+~/trunk/src/scripts $ ./build_image --board=${BOARD} --noenable_rootfs_verification dev
+
+Write the Chromium OS image to USB
+
+Making a Chromium OS USB installer is easy. 
+
+Plug a 16GB USB drive into your PC.
+~/trunk/src/scripts $  cros flash usb:// ${BOARD}/latest
+
+Select the USB device from the options and confirm.
+cros_flash writes the image while keeping you informed of its progress. 
+
+Great Job!
+
+Remove the USB and take a moment to feel like something of a technical badass.
+If you skipped the API keys part you’re going to be devastated to learn that your build is *useless, 
+so go back and finish that, and then repeat the steps for Building Chromium OS.
+Also, use this time to remind yourself that using Chromium OS is an involved process that 
+requires you repeating this process (or other manual update process) every single time you want to update. 
+
+*It will boot and install to a SSD, but you’re going to be sad.
+
+// DISCLAIMER!!!
+Chromium OS and Chromium don’t auto-update.
+Chromium OS isn’t for general consumer use.
+
+Make a Dual-Use Chromium OS USB Installer
+You can use this device at least two ways:
+1. Boot the X220 from the USB and run Chromium OS as-is 
+2. Boot the X220  from the USB and install Chromium OS to the SSD
+
+Installing Chromium OS on a SSD
+
+Insert the USB drive into the X220 and boot.
+
+At the Welcome screen enter VT2 by pressing Alt + Ctrl + F3
+login: chronos
+Log in with the password that you set earlier. 
+
+Make sure that you have a *SSD in your X220.
+*Any data on the SSD will obviously be totally destroyed by this process
+
+$ sudo /usr/sbin/chromeos-install --dst /dev/sda
+
+Hit the y key and let everything run, it will throw errors.
+Exit VT2 by pressing Ctrl + Alt + F1								
+Power off and remove the USB drive.
+
+Boot Chromium OS from SSD
+
+At the Welcome screen enter VT2 by pressing Alt + Ctrl + F3
+Log in.
+
+Make your rootfs writable 
+$ sudo /usr/share/vboot/bin/make_dev_ssd.sh --force --remove_rootfs_verification 
+
+Exit by hitting Alt + Ctrl + F1 
+
+Remove the USB drive and boot into your new Chromium OS ThinkPad X220.
+
+EXPERIMENTAL SETTINGS
+
+Navigate to chrome://flags 
+
+Here are some of the flags that I find useful. 
+The flags are constantly evolving, so check for new ones after every new build/install.
+To check them out just enter them in your Chromium browser’s omnibox.
+
+#ash-enable-night-light   								
+#enable-zip-archiver-packer
+#smooth-scrolling 
+#enable-easyunlock-promotions  
+
+Search in chrome://flags for md and enable the material design components.
+
+This looks promising, as it should work with X220 hardware	
+#quick-unlock-fingerprint
+
+ADDITIONAL RESOURCES AND HARDWARE UPGRADE GUIDES WITH IMAGES
+
+https://anddevw.com/gdgsf-chromepad-chromium-for-thinkpad/
+
+
+
+
+
+
