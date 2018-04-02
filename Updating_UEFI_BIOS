@@ -1,0 +1,23 @@
+*Download the latest factory BIOS from Lenovo
+https://download.lenovo.com/pccbbs/mobiles/8duj29us.iso
+
+*Verify the ISO Checksum and Convert ISO to IMG
+$ echo ‘5688d9309c0406c99f990e12d93db79755ccd07bb60aff634c7132a9b6ff8f46 8duj29us.iso’ | sha256sum -c
+
+
+$ sudo apt-get install genisoimage
+$ geteltorito -o bios.img  fwss31.iso
+
+Burn IMG to USB 
+$ sudo dd if=bios.img of=/dev/sdX bs=4M status=progress
+
+1. Plug the X220 into the AC adapter, insert the USB with the bios.img and boot. 
+
+2. In the Main Menu Window select #2 Update System Program
+
+3. At the prompts hit the Y key and the Enter key to proceed.
+
+4. After the reboot select #3 in the Main Menu Window
+
+5. Continue through the prompts with Y and Enter.
+
