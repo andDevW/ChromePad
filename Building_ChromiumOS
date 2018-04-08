@@ -13,7 +13,8 @@ https://www.chromium.org/chromium-os/developer-guide
 
 Install the needed packages
 
-$ sudo apt-get install git-core gitk git-gui curl lvm2 thin-provisioning-tools python-pkg-resources python-virtualenv
+$ sudo apt-get install git-core gitk git-gui curl lvm2 thin-provisioning-tools python-pkg-resources python-virtualenv \ 
+subversion python-oauth2client
 
 Configure Git
 
